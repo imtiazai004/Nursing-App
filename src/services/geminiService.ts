@@ -98,6 +98,13 @@ export async function generateSummaries(sources: Source[]): Promise<Summary[]> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contentParts })
   });
+  if (!response.ok) {
+    if (response.status === 504 || response.status === 502) {
+      throw new Error('Analysis timed out. Try with smaller files or fewer sources.');
+    }
+    const err = await response.json();
+    throw new Error(err.error || 'Failed to generate summaries');
+  }
   return response.json();
 }
 
@@ -108,6 +115,13 @@ export async function generateQuiz(sources: Source[], count: number = 5): Promis
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contentParts, count })
   });
+  if (!response.ok) {
+    if (response.status === 504 || response.status === 502) {
+      throw new Error('Analysis timed out. Try with smaller files or fewer sources.');
+    }
+    const err = await response.json();
+    throw new Error(err.error || 'Failed to generate MCQs');
+  }
   return response.json();
 }
 
@@ -118,6 +132,9 @@ export async function chatWithAssistant(sources: Source[], message: string, hist
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message, contentParts, history })
   });
+  if (!response.ok) {
+    throw new Error('Failed to send message');
+  }
   const data = await response.json();
   return data.text || "Error processing request.";
 }
@@ -129,5 +146,12 @@ export async function getRecommendations(sources: Source[]): Promise<StudyRecomm
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ contentParts })
   });
+  if (!response.ok) {
+    if (response.status === 504 || response.status === 502) {
+      throw new Error('Recommendations timed out.');
+    }
+    const err = await response.json();
+    throw new Error(err.error || 'Failed to get recommendations');
+  }
   return response.json();
 }

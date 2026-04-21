@@ -58,6 +58,11 @@ export const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onAdd
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     acceptedFiles.forEach(file => {
+      // 4.5MB is Vercel's limit for serverless functions, we use 4MB to be safe
+      if (file.size > 4 * 1024 * 1024) {
+        alert(`${file.name} is too large. Please use files smaller than 4MB for clinical analysis.`);
+        return;
+      }
       const reader = new FileReader();
       reader.onload = () => {
         onAddSource({

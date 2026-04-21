@@ -11,7 +11,9 @@ import {
   BrainCircuit, 
   GraduationCap,
   ChevronRight,
-  Clock
+  Clock,
+  AlertTriangle,
+  RefreshCw
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AiConfigNotice } from './AiConfigNotice';
@@ -20,18 +22,50 @@ interface DashboardProps {
   sources: Source[];
   onNavigate: (view: ViewState) => void;
   onQuickUpload: () => void;
+  isLoadingStates: {
+    summarizing: boolean;
+    quizzing: boolean;
+  };
+  errors: {
+    summary: string | null;
+    quiz: string | null;
+  };
+  onRetry: () => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ sources, onNavigate, onQuickUpload }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ sources, onNavigate, onQuickUpload, isLoadingStates, errors, onRetry }) => {
+  const hasError = errors.summary || errors.quiz;
+
   const stats = [
     { label: 'Sources', value: sources.length, icon: BookOpen, color: 'bg-blue-500' },
-    { label: 'Summaries', value: sources.length > 0 ? sources.length : 0, icon: BrainCircuit, color: 'bg-indigo-500/50' },
-    { label: 'Knowledge', value: sources.length > 0 ? 'Ready' : 'Pending', icon: GraduationCap, color: 'bg-emerald-500/50' },
+    { label: 'Summaries', value: sources.length > 0 ? (isLoadingStates.summarizing ? 'Loading...' : (errors.summary ? 'Error' : sources.length)) : 0, icon: BrainCircuit, color: 'bg-indigo-500/50' },
+    { label: 'Knowledge', value: sources.length > 0 ? (isLoadingStates.quizzing ? 'Updating...' : (errors.quiz ? 'Limited' : 'Ready')) : 'Pending', icon: GraduationCap, color: 'bg-emerald-500/50' },
   ];
 
   return (
     <div className="space-y-6 md:space-y-8 py-4 md:py-6 pb-24 md:pb-6">
       <AiConfigNotice />
+
+      {hasError && sources.length > 0 && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-500/20 rounded-lg text-red-500">
+              <AlertTriangle size={20} />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white">Analysis Interrupted</p>
+              <p className="text-xs text-white/50">One or more sources couldn't be processed. This is usually due to large file sizes or network timeouts.</p>
+            </div>
+          </div>
+          <button 
+            onClick={onRetry}
+            className="w-full sm:w-auto px-6 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 border border-white/10"
+          >
+            <RefreshCw size={14} />
+            Retry Analysis
+          </button>
+        </div>
+      )}
       
       <div className="relative overflow-hidden glass-panel p-6 md:p-10 text-white min-h-[300px] md:min-h-[400px] flex flex-col justify-center">
         <div className="relative z-10 max-w-2xl text-center md:text-left">
@@ -139,17 +173,35 @@ export const Dashboard: React.FC<DashboardProps> = ({ sources, onNavigate, onQui
           <div className="grid grid-cols-2 gap-4">
             <button 
               onClick={() => onNavigate('summarize')}
-              className="p-4 glass-card hover:bg-white/10 transition-all text-center flex flex-col items-center gap-2 border-white/10"
+              className="p-4 glass-card hover:bg-white/10 transition-all text-center flex flex-col items-center gap-2 border-white/10 relative overflow-hidden group"
             >
-              <BrainCircuit size={24} className="text-blue-400" />
-              <p className="text-xs font-bold text-white mt-1">Summary</p>
+              {isLoadingStates.summarizing && (
+                <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center">
+                  <span className="w-full h-full absolute animate-[ping_2s_infinite] bg-blue-500/5"></span>
+                </div>
+              )}
+              <div className="relative z-10 flex flex-col items-center gap-2">
+                <BrainCircuit size={24} className={isLoadingStates.summarizing ? "text-blue-400 animate-pulse" : "text-blue-400"} />
+                <p className="text-xs font-bold text-white mt-1">
+                   {isLoadingStates.summarizing ? 'Summarizing...' : 'Summary'}
+                </p>
+              </div>
             </button>
             <button 
               onClick={() => onNavigate('quiz')}
-              className="p-4 glass-card hover:bg-white/10 transition-all text-center flex flex-col items-center gap-2 border-white/10"
+              className="p-4 glass-card hover:bg-white/10 transition-all text-center flex flex-col items-center gap-2 border-white/10 relative overflow-hidden group"
             >
-              <GraduationCap size={24} className="text-emerald-400" />
-              <p className="text-xs font-bold text-white mt-1">Practice MCQs</p>
+              {isLoadingStates.quizzing && (
+                <div className="absolute inset-0 bg-emerald-500/10 flex items-center justify-center">
+                   <span className="w-full h-full absolute animate-[ping_2s_infinite] bg-emerald-500/5"></span>
+                </div>
+              )}
+              <div className="relative z-10 flex flex-col items-center gap-2">
+                <GraduationCap size={24} className={isLoadingStates.quizzing ? "text-emerald-400 animate-pulse" : "text-emerald-400"} />
+                <p className="text-xs font-bold text-white mt-1">
+                  {isLoadingStates.quizzing ? 'Analyzing...' : 'Practice MCQs'}
+                </p>
+              </div>
             </button>
           </div>
         </div>

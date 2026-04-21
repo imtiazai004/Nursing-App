@@ -68,7 +68,7 @@ export function AiConfigNotice() {
                   </p>
                   <ul className="text-[10px] text-slate-400 mt-2 list-disc list-inside space-y-1">
                     <li>AI Studio <strong>Settings</strong> → <strong>Secrets</strong></li>
-                    <li>Vercel <strong>Project Settings</strong> → <strong>Environment Variables</strong> (if using Vercel)</li>
+                    <li>Vercel <strong>Project Settings</strong> → <strong>Env Vars</strong> (<em>Requires a New Deploy</em>)</li>
                   </ul>
                 </div>
               </div>

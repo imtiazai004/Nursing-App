@@ -12,13 +12,20 @@ app.use(express.json({ limit: '50mb' }));
 function getGenAI() {
   let apiKey = process.env.GEMINI_API_KEY;
   
-  // Clean the API key (remove quotes and whitespace)
+  // Clean the API key (remove quotes, whitespace, variable name prefixes, and "undefined" strings)
   if (apiKey) {
+    apiKey = apiKey.replace(/^GEMINI_API_KEY=/i, ''); // Handle case where they pasted the full line
     apiKey = apiKey.replace(/['"]+/g, '').trim();
   }
 
-  if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey === "") {
-    throw new Error("Invalid or missing GEMINI_API_KEY. Please ensure you have added your real Gemini API key to your project's Environment Variables (not just .env.example).");
+  // Common errors: missing key, placeholder text, or literal "undefined" string
+  if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey === "" || apiKey.toLowerCase() === "undefined") {
+    throw new Error(`Invalid or missing GEMINI_API_KEY.
+    
+    HOW TO FIX:
+    1. If you are in AI Studio editor: Add a Secret named 'GEMINI_API_KEY' in the Settings sidebar.
+    2. If you are on Vercel: Add 'GEMINI_API_KEY' to your Project Environment Variables AND trigger a NEW DEPLOYMENT.
+    3. Make sure the value starts with 'AIza...' and has NO QUOTES.`);
   }
   
   return new GoogleGenerativeAI(apiKey);

@@ -46,8 +46,8 @@ export default function App() {
       try {
         const data = await generateSummaries(currentSources);
         setSummaries(data);
-      } catch (e) {
-        setSummaryError('Failed to update summaries.');
+      } catch (e: any) {
+        setSummaryError(e.message || 'Failed to update summaries.');
         console.error(e);
       } finally {
         setIsSummarizing(false);
@@ -60,8 +60,8 @@ export default function App() {
       try {
         const data = await generateQuiz(currentSources, 5);
         setQuizzes(data);
-      } catch (e) {
-        setQuizError('Failed to update MCQs.');
+      } catch (e: any) {
+        setQuizError(e.message || 'Failed to update MCQs.');
         console.error(e);
       } finally {
         setIsQuizzing(false);
@@ -129,9 +129,24 @@ export default function App() {
   const renderView = () => {
     const onBack = () => setCurrentView('dashboard');
 
+    const dashboardProps = {
+      sources,
+      onNavigate: setCurrentView,
+      onQuickUpload: () => setIsUploadModalOpen(true),
+      isLoadingStates: {
+        summarizing: isSummarizing,
+        quizzing: isQuizzing
+      },
+      errors: {
+        summary: summaryError,
+        quiz: quizError
+      },
+      onRetry: () => startGeneration(sources)
+    };
+
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard sources={sources} onNavigate={setCurrentView} onQuickUpload={() => setIsUploadModalOpen(true)} />;
+        return <Dashboard {...dashboardProps} />;
       case 'sources':
         return <SourceManager sources={sources} onAddSource={addSource} onRemoveSource={removeSource} onBack={onBack} />;
       case 'summarize':
@@ -167,7 +182,7 @@ export default function App() {
           />
         );
       default:
-        return <Dashboard sources={sources} onNavigate={setCurrentView} onQuickUpload={() => setIsUploadModalOpen(true)} />;
+        return <Dashboard {...dashboardProps} />;
     }
   };
 

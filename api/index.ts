@@ -1,14 +1,21 @@
+import "dotenv/config";
 import express from "express";
 import path from "path";
 import fetch from "node-fetch";
 import * as cheerio from "cheerio";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
-import "dotenv/config";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 const app = express();
-
 app.use(express.json({ limit: '50mb' }));
+
+// Helper to get Gemini Client with clear error reporting
+function getGenAI() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing GEMINI_API_KEY environment variable. Please add it to your project settings.");
+  }
+  return new GoogleGenerativeAI(apiKey);
+}
 
 const SYSTEM_INSTRUCTION = `You are a specialized Nursing Study Assistant. 
 Your primary goal is to help students master nursing studies using ONLY the materials they provide (PDFs, clinical slides, medical notes, etc.).
@@ -23,6 +30,7 @@ CRITICAL RULES:
 app.post("/api/summarize", async (req, res) => {
   const { contentParts } = req.body;
   try {
+    const genAI = getGenAI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_INSTRUCTION });
     const prompt = "Please provide detailed summaries for these nursing study materials. For each material, provide a title, a comprehensive summary, and 5-7 key learning points.";
     
@@ -46,7 +54,7 @@ app.post("/api/summarize", async (req, res) => {
     });
     res.json(JSON.parse(response.response.text()));
   } catch (error: any) {
-    console.error(error);
+    console.error("Summarize error:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -55,6 +63,7 @@ app.post("/api/summarize", async (req, res) => {
 app.post("/api/quiz", async (req, res) => {
   const { contentParts, count = 5 } = req.body;
   try {
+    const genAI = getGenAI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_INSTRUCTION });
     const prompt = `Generate ${count} strictly source-based Multiple Choice Questions (MCQs) for nursing students. 
     Ensure the questions are challenging and cover critical nursing concepts from the provided documents.
@@ -81,7 +90,7 @@ app.post("/api/quiz", async (req, res) => {
     });
     res.json(JSON.parse(response.response.text()));
   } catch (error: any) {
-    console.error(error);
+    console.error("Quiz error:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -90,6 +99,7 @@ app.post("/api/quiz", async (req, res) => {
 app.post("/api/chat", async (req, res) => {
   const { message, contentParts, history = [] } = req.body;
   try {
+    const genAI = getGenAI();
     const model = genAI.getGenerativeModel({ 
       model: "gemini-1.5-flash", 
       systemInstruction: SYSTEM_INSTRUCTION + "\n\nAdditional Instruction: You are a clinical chatbot. Answer the user's questions strictly based on the provided nursing materials."
@@ -99,7 +109,7 @@ app.post("/api/chat", async (req, res) => {
     const result = await chat.sendMessage([...contentParts, { text: message }]);
     res.json({ text: result.response.text() });
   } catch (error: any) {
-    console.error(error);
+    console.error("Chat error:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -108,6 +118,7 @@ app.post("/api/chat", async (req, res) => {
 app.post("/api/recommendations", async (req, res) => {
   const { contentParts } = req.body;
   try {
+    const genAI = getGenAI();
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_INSTRUCTION });
     const prompt = `Based on these nursing study materials, recommend 5 high-quality external resources (websites, journals, or video tutorials) that would help deepen my understanding. 
     Provide a specific topic for each, why it's recommended based on my current focus, and a direct URL to the resource.`;
@@ -132,7 +143,7 @@ app.post("/api/recommendations", async (req, res) => {
     });
     res.json(JSON.parse(response.response.text()));
   } catch (error: any) {
-    console.error(error);
+    console.error("Recommendations error:", error);
     res.status(500).json({ error: error.message });
   }
 });

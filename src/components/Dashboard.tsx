@@ -29,15 +29,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ sources, onNavigate, onQui
   ];
 
   return (
-    <div className="space-y-8 py-6">
-      <div className="relative overflow-hidden glass-panel p-10 text-white min-h-[400px] flex flex-col justify-center">
-        <div className="relative z-10 max-w-2xl">
+    <div className="space-y-6 md:space-y-8 py-4 md:py-6 pb-24 md:pb-6">
+      <div className="relative overflow-hidden glass-panel p-6 md:p-10 text-white min-h-[300px] md:min-h-[400px] flex flex-col justify-center">
+        <div className="relative z-10 max-w-2xl text-center md:text-left">
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             className="mb-4"
           >
-            <span className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-[11px] font-bold uppercase tracking-[0.05em] text-blue-300">
+            <span className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-[10px] md:text-[11px] font-bold uppercase tracking-[0.05em] text-blue-300">
               Active Study Mode
             </span>
           </motion.div>
@@ -45,7 +45,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ sources, onNavigate, onQui
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
-            className="text-5xl font-bold mb-6 leading-tight"
+            className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 leading-tight"
           >
             Master Nursing with <span className="text-blue-400">NurseNotes</span>
           </motion.h1>
@@ -53,17 +53,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ sources, onNavigate, onQui
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-white/70 text-lg mb-8 leading-relaxed font-light"
+            className="text-white/70 text-base md:text-lg mb-6 md:mb-8 leading-relaxed font-light"
           >
             Transform your clinical materials into concise summaries and strictly source-based MCQs.
           </motion.p>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
             <motion.button 
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
               onClick={onQuickUpload}
-              className="flex items-center gap-2 px-8 py-3.5 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-all shadow-xl shadow-blue-500/20 border-none"
+              className="flex items-center justify-center gap-2 px-8 py-3.5 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-all shadow-xl shadow-blue-500/20 border-none"
             >
               <PlusCircle size={20} />
               Quick Upload
@@ -73,13 +73,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ sources, onNavigate, onQui
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
               onClick={() => onNavigate('sources')}
-              className="flex items-center gap-2 px-8 py-3.5 bg-white/5 border border-white/10 text-white rounded-xl font-bold hover:bg-white/10 transition-all"
+              className="flex items-center justify-center gap-2 px-8 py-3.5 bg-white/5 border border-white/10 text-white rounded-xl font-bold hover:bg-white/10 transition-all"
             >
               Library
             </motion.button>
           </div>
         </div>
       </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, idx) => (

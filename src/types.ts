@@ -8,6 +8,7 @@ export interface Source {
   name: string;
   type: 'file' | 'link';
   content?: string; // Base64 for files, URL for links
+  extractedContent?: string; // For links: the fetched text content
   mimeType?: string;
   size?: number;
   addedAt: number;

@@ -102,6 +102,9 @@ async function processSources(sources: Source[]) {
       return { text: `File: ${s.name} (Non-analyzable format for AI context)` };
     }
     // Links
+    if (s.type === 'link') {
+      return { text: `Source Name: ${s.name}\nSource URL: ${s.content || 'N/A'}\nExtracted Content: ${s.extractedContent || "[No content extracted]"}` };
+    }
     return { text: `Source Name: ${s.name}\nSource URL: ${s.content || 'N/A'}` };
   }));
 }

@@ -146,7 +146,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ sources, onNavigate, onQui
               className="p-4 glass-card hover:bg-white/10 transition-all text-center flex flex-col items-center gap-2 border-white/10"
             >
               <GraduationCap size={24} className="text-emerald-400" />
-              <p className="text-xs font-bold text-white mt-1">Practice Quiz</p>
+              <p className="text-xs font-bold text-white mt-1">Practice MCQs</p>
             </button>
           </div>
         </div>

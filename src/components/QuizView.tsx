@@ -105,7 +105,7 @@ export const QuizView: React.FC<QuizViewProps> = ({
         <div className="w-20 h-20 bg-blue-500/10 rounded-3xl flex items-center justify-center text-blue-400 mx-auto mb-8 border border-blue-500/20">
           <Trophy size={40} />
         </div>
-        <h2 className="text-3xl font-bold text-white mb-2">Quiz Complete!</h2>
+        <h2 className="text-3xl font-bold text-white mb-2">MCQs Complete!</h2>
         <p className="text-white/50 mb-10">Clinical assessment finished based on your sources.</p>
         
         <div className="text-7xl font-bold text-blue-400 mb-12">
@@ -133,7 +133,7 @@ export const QuizView: React.FC<QuizViewProps> = ({
           >
             <ChevronLeft size={24} />
           </button>
-          <h2 className="text-3xl font-bold text-white">Quiz Mode</h2>
+          <h2 className="text-3xl font-bold text-white">MCQ Mode</h2>
         </div>
         {error && (
           <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
@@ -153,7 +153,7 @@ export const QuizView: React.FC<QuizViewProps> = ({
           disabled={sources.length === 0}
           className="px-10 py-4 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition-all shadow-lg disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          {sources.length === 0 ? 'Provide Sources First' : 'Begin Practice Quiz'}
+          {sources.length === 0 ? 'Provide Sources First' : 'Begin Practice MCQs'}
         </button>
       </div>
     </div>

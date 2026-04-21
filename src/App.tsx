@@ -60,7 +60,7 @@ export default function App() {
         const data = await generateQuiz(currentSources, 5);
         setQuizzes(data);
       } catch (e) {
-        setQuizError('Failed to update quizzes.');
+        setQuizError('Failed to update MCQs.');
         console.error(e);
       } finally {
         setIsQuizzing(false);

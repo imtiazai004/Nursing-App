@@ -27,7 +27,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange, onQ
     { id: 'dashboard' as ViewState, icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'sources' as ViewState, icon: Files, label: 'Sources' },
     { id: 'summarize' as ViewState, icon: FileText, label: 'Summaries' },
-    { id: 'quiz' as ViewState, icon: ShieldCheck, label: 'Quiz' },
+    { id: 'quiz' as ViewState, icon: ShieldCheck, label: 'MCQs' },
     { id: 'recommendations' as ViewState, icon: ExternalLink, label: 'Resources' },
   ];
 

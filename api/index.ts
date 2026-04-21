@@ -10,10 +10,17 @@ app.use(express.json({ limit: '50mb' }));
 
 // Helper to get Gemini Client with clear error reporting
 function getGenAI() {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("Missing GEMINI_API_KEY environment variable. Please add it to your project settings.");
+  let apiKey = process.env.GEMINI_API_KEY;
+  
+  // Clean the API key (remove quotes and whitespace)
+  if (apiKey) {
+    apiKey = apiKey.replace(/['"]+/g, '').trim();
   }
+
+  if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey === "") {
+    throw new Error("Invalid or missing GEMINI_API_KEY. Please ensure you have added your real Gemini API key to your project's Environment Variables (not just .env.example).");
+  }
+  
   return new GoogleGenerativeAI(apiKey);
 }
 

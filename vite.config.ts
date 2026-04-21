@@ -12,21 +12,29 @@ export default defineConfig(({mode}) => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
+        injectRegister: 'auto',
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+        },
         manifest: {
           name: 'Nursing MCQ & Study Assistant',
           short_name: 'NursingAI',
           description: 'Master nursing studies with AI MCQs and summaries',
           theme_color: '#3b82f6',
+          background_color: '#ffffff',
+          display: 'standalone',
           icons: [
             {
               src: 'https://img.icons8.com/clouds/256/nurse.png',
               sizes: '192x192',
-              type: 'image/png'
+              type: 'image/png',
+              purpose: 'any'
             },
             {
               src: 'https://img.icons8.com/clouds/512/nurse.png',
               sizes: '512x512',
-              type: 'image/png'
+              type: 'image/png',
+              purpose: 'any'
             }
           ]
         }

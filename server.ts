@@ -4,7 +4,6 @@
  */
 
 import express from "express";
-import { createServer as createViteServer } from "vite";
 import path from "path";
 import fetch from "node-fetch";
 import * as cheerio from "cheerio";
@@ -22,175 +21,173 @@ CRITICAL RULES:
 3. If a source is a video link and you lack content, use the extracted transcript/content provided.
 4. recommendations can suggest reputable external resources, but MCQ/Summaries must be strictly source-based.`;
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+app.use(express.json({ limit: '50mb' }));
 
-  app.use(express.json({ limit: '50mb' }));
-
-  // AI Endpoint: Summaries
-  app.post("/api/summarize", async (req, res) => {
-    const { contentParts } = req.body;
-    try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_INSTRUCTION });
-      const prompt = "Please provide detailed summaries for these nursing study materials. For each material, provide a title, a comprehensive summary, and 5-7 key learning points.";
-      
-      const response = await model.generateContent({
-        contents: [{ role: 'user', parts: [...contentParts, { text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: SchemaType.ARRAY,
-            items: {
-              type: SchemaType.OBJECT,
-              properties: {
-                title: { type: SchemaType.STRING },
-                content: { type: SchemaType.STRING },
-                keyPoints: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
-              },
-              required: ["title", "content", "keyPoints"]
-            }
-          }
-        }
-      });
-      res.json(JSON.parse(response.response.text()));
-    } catch (error: any) {
-      console.error(error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // AI Endpoint: Quiz
-  app.post("/api/quiz", async (req, res) => {
-    const { contentParts, count = 5 } = req.body;
-    try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_INSTRUCTION });
-      const prompt = `Generate ${count} strictly source-based Multiple Choice Questions (MCQs) for nursing students. 
-      Ensure the questions are challenging and cover critical nursing concepts from the provided documents.
-      For each question, provide 4 options, the index of the correct answer (0-3), and a detailed explanation based on the sources.`;
-      
-      const response = await model.generateContent({
-        contents: [{ role: 'user', parts: [...contentParts, { text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: SchemaType.ARRAY,
-            items: {
-              type: SchemaType.OBJECT,
-              properties: {
-                question: { type: SchemaType.STRING },
-                options: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
-                correctAnswer: { type: SchemaType.INTEGER },
-                explanation: { type: SchemaType.STRING }
-              },
-              required: ["question", "options", "correctAnswer", "explanation"]
-            }
-          }
-        }
-      });
-      res.json(JSON.parse(response.response.text()));
-    } catch (error: any) {
-      console.error(error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // AI Endpoint: Chat
-  app.post("/api/chat", async (req, res) => {
-    const { message, contentParts, history = [] } = req.body;
-    try {
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash", 
-        systemInstruction: SYSTEM_INSTRUCTION + "\n\nAdditional Instruction: You are a clinical chatbot. Answer the user's questions strictly based on the provided nursing materials."
-      });
-      
-      const chat = model.startChat({ history });
-      const result = await chat.sendMessage([...contentParts, { text: message }]);
-      res.json({ text: result.response.text() });
-    } catch (error: any) {
-      console.error(error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // AI Endpoint: Recommendations
-  app.post("/api/recommendations", async (req, res) => {
-    const { contentParts } = req.body;
-    try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_INSTRUCTION });
-      const prompt = `Based on these nursing study materials, recommend 5 high-quality external resources (websites, journals, or video tutorials) that would help deepen my understanding. 
-      Provide a specific topic for each, why it's recommended based on my current focus, and a direct URL to the resource.`;
-      
-      const response = await model.generateContent({
-        contents: [{ role: 'user', parts: [...contentParts, { text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: SchemaType.ARRAY,
-            items: {
-              type: SchemaType.OBJECT,
-              properties: {
-                topic: { type: SchemaType.STRING },
-                reason: { type: SchemaType.STRING },
-                link: { type: SchemaType.STRING }
-              },
-              required: ["topic", "reason", "link"]
-            }
-          }
-        }
-      });
-      res.json(JSON.parse(response.response.text()));
-    } catch (error: any) {
-      console.error(error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // Existing URL Extraction
-  app.post("/api/extract", async (req, res) => {
-    const { url } = req.body;
+// AI Endpoint: Summaries
+app.post("/api/summarize", async (req, res) => {
+  const { contentParts } = req.body;
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_INSTRUCTION });
+    const prompt = "Please provide detailed summaries for these nursing study materials. For each material, provide a title, a comprehensive summary, and 5-7 key learning points.";
     
-    if (!url) {
-      return res.status(400).json({ error: "URL is required" });
-    }
-
-    try {
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    const response = await model.generateContent({
+      contents: [{ role: 'user', parts: [...contentParts, { text: prompt }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: SchemaType.ARRAY,
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              title: { type: SchemaType.STRING },
+              content: { type: SchemaType.STRING },
+              keyPoints: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
+            },
+            required: ["title", "content", "keyPoints"]
+          }
         }
-      });
-      
-      const html = await response.text();
-      const $ = cheerio.load(html);
-
-      // Remove unwanted elements
-      $('script, style, nav, footer, iframe, ads').remove();
-
-      const title = $('title').text() || $('h1').first().text();
-      let content = "";
-
-      if (url.includes('youtube.com') || url.includes('youtu.be')) {
-        // Special handling for YouTube - Title and Meta description
-        content = $('meta[name="description"]').attr('content') || "No description available.";
-      } else {
-        // General webpage text extraction
-        content = $('body').text().replace(/\s+/g, ' ').trim().substring(0, 50000); // Limit to 50k chars
       }
+    });
+    res.json(JSON.parse(response.response.text()));
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
-      res.json({
-        title: title.trim(),
-        content,
-        url
-      });
-    } catch (error) {
-      console.error("Extraction error:", error);
-      res.status(500).json({ error: "Failed to extract content from URL" });
+// AI Endpoint: Quiz
+app.post("/api/quiz", async (req, res) => {
+  const { contentParts, count = 5 } = req.body;
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_INSTRUCTION });
+    const prompt = `Generate ${count} strictly source-based Multiple Choice Questions (MCQs) for nursing students. 
+    Ensure the questions are challenging and cover critical nursing concepts from the provided documents.
+    For each question, provide 4 options, the index of the correct answer (0-3), and a detailed explanation based on the sources.`;
+    
+    const response = await model.generateContent({
+      contents: [{ role: 'user', parts: [...contentParts, { text: prompt }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: SchemaType.ARRAY,
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              question: { type: SchemaType.STRING },
+              options: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+              correctAnswer: { type: SchemaType.INTEGER },
+              explanation: { type: SchemaType.STRING }
+            },
+            required: ["question", "options", "correctAnswer", "explanation"]
+          }
+        }
+      }
+    });
+    res.json(JSON.parse(response.response.text()));
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// AI Endpoint: Chat
+app.post("/api/chat", async (req, res) => {
+  const { message, contentParts, history = [] } = req.body;
+  try {
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash", 
+      systemInstruction: SYSTEM_INSTRUCTION + "\n\nAdditional Instruction: You are a clinical chatbot. Answer the user's questions strictly based on the provided nursing materials."
+    });
+    
+    const chat = model.startChat({ history });
+    const result = await chat.sendMessage([...contentParts, { text: message }]);
+    res.json({ text: result.response.text() });
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// AI Endpoint: Recommendations
+app.post("/api/recommendations", async (req, res) => {
+  const { contentParts } = req.body;
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_INSTRUCTION });
+    const prompt = `Based on these nursing study materials, recommend 5 high-quality external resources (websites, journals, or video tutorials) that would help deepen my understanding. 
+    Provide a specific topic for each, why it's recommended based on my current focus, and a direct URL to the resource.`;
+    
+    const response = await model.generateContent({
+      contents: [{ role: 'user', parts: [...contentParts, { text: prompt }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: SchemaType.ARRAY,
+          items: {
+            type: SchemaType.OBJECT,
+            properties: {
+              topic: { type: SchemaType.STRING },
+              reason: { type: SchemaType.STRING },
+              link: { type: SchemaType.STRING }
+            },
+            required: ["topic", "reason", "link"]
+          }
+        }
+      }
+    });
+    res.json(JSON.parse(response.response.text()));
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Existing URL Extraction
+app.post("/api/extract", async (req, res) => {
+  const { url } = req.body;
+  
+  if (!url) {
+    return res.status(400).json({ error: "URL is required" });
+  }
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    });
+    
+    const html = await response.text();
+    const $ = cheerio.load(html);
+
+    // Remove unwanted elements
+    $('script, style, nav, footer, iframe, ads').remove();
+
+    const title = $('title').text() || $('h1').first().text();
+    let content = "";
+
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      // Special handling for YouTube - Title and Meta description
+      content = $('meta[name="description"]').attr('content') || "No description available.";
+    } else {
+      // General webpage text extraction
+      content = $('body').text().replace(/\s+/g, ' ').trim().substring(0, 50000); // Limit to 50k chars
     }
-  });
 
-  // Vite middleware for development
+    res.json({
+      title: title.trim(),
+      content,
+      url
+    });
+  } catch (error) {
+    console.error("Extraction error:", error);
+    res.status(500).json({ error: "Failed to extract content from URL" });
+  }
+});
+
+async function setupVite() {
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -203,10 +200,15 @@ async function startServer() {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
+}
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+if (process.env.NODE_ENV !== "test") {
+  setupVite().then(() => {
+    const PORT = 3000;
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
   });
 }
 
-startServer();
+export default app;

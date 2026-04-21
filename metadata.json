@@ -1,0 +1,6 @@
+{
+  "name": "NursePath AI",
+  "description": "An AI-powered nursing study assistant that generates summaries, MCQs, and study paths strictly from your uploaded slides, notes, and materials.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

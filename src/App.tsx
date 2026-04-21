@@ -12,6 +12,7 @@ import { RecommendationView } from './components/RecommendationView';
 import { Dashboard } from './components/Dashboard';
 import { ChatBot } from './components/ChatBot';
 import { UploadModal } from './components/UploadModal';
+import { InstallNotice } from './components/InstallNotice';
 import { Source, ViewState, MCQ, Summary, StudyRecommendation } from './types';
 import { motion, AnimatePresence } from 'motion/react';
 import { generateSummaries, generateQuiz, getRecommendations } from './services/geminiService';
@@ -201,6 +202,8 @@ export default function App() {
         onClose={() => setIsUploadModalOpen(false)} 
         onAddSource={addSource} 
       />
+
+      <InstallNotice />
     </div>
   );
 }

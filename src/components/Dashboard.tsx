@@ -14,6 +14,7 @@ import {
   Clock
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { AiConfigNotice } from './AiConfigNotice';
 
 interface DashboardProps {
   sources: Source[];
@@ -30,6 +31,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ sources, onNavigate, onQui
 
   return (
     <div className="space-y-6 md:space-y-8 py-4 md:py-6 pb-24 md:pb-6">
+      <AiConfigNotice />
+      
       <div className="relative overflow-hidden glass-panel p-6 md:p-10 text-white min-h-[300px] md:min-h-[400px] flex flex-col justify-center">
         <div className="relative z-10 max-w-2xl text-center md:text-left">
           <motion.div 

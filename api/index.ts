@@ -33,6 +33,13 @@ CRITICAL RULES:
 3. If a source is a video link and you lack content, use the extracted transcript/content provided.
 4. recommendations can suggest reputable external resources, but MCQ/Summaries must be strictly source-based.`;
 
+// AI Endpoint: Status Check (Check if configured)
+app.get("/api/ai-status", (req, res) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  const isConfigured = !!apiKey && apiKey !== "MY_GEMINI_API_KEY" && apiKey.trim() !== "";
+  res.json({ configured: isConfigured });
+});
+
 // AI Endpoint: Summaries
 app.post("/api/summarize", async (req, res) => {
   const { contentParts } = req.body;

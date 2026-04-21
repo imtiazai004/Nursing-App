@@ -58,7 +58,7 @@ export const QuizView: React.FC<QuizViewProps> = ({
   };
 
   const handleSubmit = () => {
-    if (selectedOption === null || isAnswered) return;
+    if (selectedOption === null || isAnswered || !questions[currentIdx]) return;
     
     const correct = selectedOption === questions[currentIdx].correctAnswer;
     if (correct) setScore(s => s + 1);
@@ -161,6 +161,18 @@ export const QuizView: React.FC<QuizViewProps> = ({
   }
 
   const q = questions[currentIdx];
+
+  // Safety guard for when questions are transitioning or out of sync with currentIdx
+  if (!q) {
+    if (isLoading) {
+      return (
+        <div className="flex flex-col items-center justify-center py-24 space-y-6">
+          <Loader2 size={48} className="text-blue-400 animate-spin" />
+        </div>
+      );
+    }
+    return null;
+  }
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 py-6">
